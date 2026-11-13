@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>北证证券终端 · DEMO · 920999 N星澜</title>
+<style>
+  :root{
+    --bg:#070b12;
+    --panel:#0d1420;
+    --panel-2:#111b2b;
+    --panel-3:#162235;
+    --line:#223149;
+    --line-soft:#1a2638;
+    --text:#e8eef7;
+    --muted:#8292a8;
+    --faint:#5c6b80;
+    --up:#ff4d5e;
+    --up-soft:rgba(255,77,94,.14);
+    --down:#22c98b;
+    --down-soft:rgba(34,201,139,.13);
+    --gold:#f5b94c;
+    --blue:#4c8dff;
+    --cyan:#35d6e9;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text)}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:13px;line-height:1.45;
+    background:
+      radial-gradient(1100px 520px at 20% -10%,rgba(27,63,120,.42),transparent 70%),
+      radial-gradient(900px 460px at 95% 0%,rgba(18,94,105,.18),transparent 72%),
+      var(--bg);
+    min-height:100vh;
+  }
+  button,input,select{font:inherit;color:inherit}
+  button{cursor:pointer}
+  a{color:var(--cyan);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .up{color:var(--up)}
+  .down{color:var(--down)}
+  .muted{color:var(--muted)}
+
+  /* ---------- top ---------- */
+  .topbar{
+    height:44px;display:flex;align-items:center;gap:14px;padding:0 20px;
+    background:#05080d;border-bottom:1px solid #1a2434;
+  }
+  .brand{display:flex;align-items:center;gap:10px;min-width:250px}
+  .brand-mark{
+    width:26px;height:26px;border:1px solid #3f6fb8;border-radius:7px;
+    display:grid;place-items:center;color:#8fc1ff;font-weight:800;font-size:13px;
+    background:linear-gradient(145deg,#17345f,#0b1525);
+    box-shadow:inset 0 0 14px rgba(76,141,255,.22);
+  }
+  .brand-name{font-weight:700;letter-spacing:.4px;font-size:14px}
+  .brand-sub{color:var(--faint);font-size:11px;margin-left:2px}
+  .demo-flag{
+    background:linear-gradient(90deg,#7f1d2d,#c42d42);color:#fff;border:1px solid #ff7a86;
+    font-size:11px;font-weight:800;letter-spacing:1.6px;padding:3px 8px;border-radius:4px;
+    box-shadow:0 0 18px rgba(255,77,94,.28);
+  }
+  .top-spacer{flex:1}
+  .env-tag{color:var(--muted);font-size:11px;border:1px solid var(--line);padding:3px 8px;border-radius:99px}
+  .env-tag b{color:var(--gold);font-weight:600}
+  .clock{font-family:var(--mono);color:#b9c7da;font-size:12px;min-width:150px;text-align:right}
+
+  .ticker-strip{
+    height:30px;display:flex;align-items:center;overflow:hidden;
+    background:#080d16;border-bottom:1px solid #131d2c;color:var(--muted);font-size:11px;
+  }
+  .ticker-label{background:#121c2c;color:var(--gold);padding:0 14px;height:100%;display:flex;align-items:center;font-weight:700;letter-spacing:.8px;flex:none;position:relative;z-index:3;box-shadow:8px 0 12px #080d16}
+  .ticker-track{display:flex;gap:34px;white-space:nowrap;animation:slide 34s linear infinite;padding-left:18px}
+  .ticker-track b{color:#d6e2f3;font-weight:500}
+  @keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .ticker-track span::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:#355073;margin-right:8px;vertical-align:2px}
+
+  /* ---------- layout ---------- */
+  .shell{display:grid;grid-template-columns:240px minmax(0,1fr) 336px;gap:12px;padding:12px 16px 18px;max-width:1560px;margin:0 auto}
+  .panel{background:linear-gradient(180deg,rgba(18,29,46,.92),rgba(12,19,31,.96));border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+  .panel-hd{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--line-soft)}
+  .panel-hd h2{margin:0;font-size:12px;letter-spacing:.8px;color:#c8d5e6;font-weight:650}
+  .panel-hd .hint{font-size:10px;color:var(--faint)}
+  .panel-bd{padding:12px}
+
+  /* ---------- watchlist ---------- */
+  .watchlist{height:100%}
+  .wl-head{display:flex;justify-content:space-between;color:var(--faint);font-size:10px;padding:7px 12px 5px;border-bottom:1px solid var(--line-soft)}
+  .wl-row{
+    width:100%;display:grid;grid-template-columns:1fr auto;gap:2px 8px;
+    padding:9px 12px;background:transparent;border:0;border-bottom:1px solid rgba(34,49,73,.45);
+    text-align:left;transition:background .15s;
+  }
+  .wl-row:hover{background:rgba(76,141,255,.07)}
+  .wl-row.active{background:linear-gradient(90deg,rgba(76,141,255,.16),rgba(76,141,255,.02));box-shadow:inset 2px 0 var(--blue)}
+  .wl-name{font-size:13px;font-weight:600;color:#e1e9f5}
+  .wl-code{font-size:10px;color:var(--faint);font-family:var(--mono)}
+  .wl-px{text-align:right;font-family:var(--mono);font-size:13px;font-weight:700}
+  .wl-pct{text-align:right;font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .mini-note{margin:12px;padding:9px 10px;border:1px dashed #2a3950;border-radius:6px;color:var(--faint);font-size:10px;line-height:1.6}
+  .mini-note b{color:#a8b7ca}
+
+  /* ---------- quote ---------- */
+  .quote-card{padding:13px 15px 15px;position:relative;overflow:hidden}
+  .quote-card::after{
+    content:"DEMO";position:absolute;right:-18px;top:23px;transform:rotate(35deg);
+    color:rgba(255,77,94,.10);font-size:52px;font-weight:900;letter-spacing:5px;pointer-events:none;
+  }
+  .q-top{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;position:relative;z-index:1}
+  .q-title{display:flex;align-items:baseline;gap:9px}
+  .q-title h1{margin:0;font-size:21px;letter-spacing:.4px}
+  .q-code{font-family:var(--mono);color:var(--muted);font-size:12px}
+  .q-badges{display:flex;gap:6px;flex-wrap:wrap}
+  .q-badge{font-size:10px;border:1px solid #3b4c66;color:#9fb1c9;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.02)}
+  .q-badge.warn{border-color:rgba(245,185,76,.45);color:var(--gold);background:rgba(245,185,76,.07)}
+  .q-price{display:flex;align-items:baseline;gap:12px;margin-left:auto;position:relative;z-index:1}
+  .q-last{font-family:var(--mono);font-size:36px;font-weight:750;color:var(--up);line-height:1;letter-spacing:-1px}
+  .q-chg{font-family:var(--mono);font-size:13px;color:var(--up)}
+  .q-stats{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;margin-top:14px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:5px;overflow:hidden;position:relative;z-index:1}
+  .q-stat{background:#0b1320;padding:7px 9px}
+  .q-stat span{display:block;color:var(--faint);font-size:10px;margin-bottom:3px}
+  .q-stat b{font-family:var(--mono);font-size:12px;font-weight:600;color:#d8e4f3}
+
+  .chart-wrap{padding:8px 12px 10px;border-top:1px solid var(--line-soft);position:relative}
+  .chart-meta{display:flex;justify-content:space-between;color:var(--faint);font-size:10px;margin-bottom:2px}
+  .chart-box{height:120px;position:relative}
+  .chart-box svg{width:100%;height:100%;display:block}
+  .chart-tag{position:absolute;right:10px;top:8px;font-size:10px;color:#72849a;border:1px solid #2a3950;padding:2px 6px;border-radius:3px;background:#0b1320}
+
+  /* ---------- main + book ---------- */
+  .market-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:12px;margin-top:12px}
+  .book-table{width:100%;border-collapse:collapse;font-size:11px}
+  .book-table th{font-weight:500;color:var(--faint);font-size:10px;text-align:right;padding:2px 8px 6px}
+  .book-table th:first-child{text-align:left}
+  .book-table td{padding:5px 8px;text-align:right;font-family:var(--mono);position:relative;border-top:1px solid rgba(34,49,73,.40)}
+  .book-table td:first-child{text-align:left;color:var(--faint);font-family:inherit;font-size:10px}
+  .book-table tr{position:relative}
+  .depth{position:absolute;right:0;top:1px;bottom:1px;opacity:.20;pointer-events:none}
+  .ask .depth{background:var(--up)}
+  .bid .depth{background:var(--down)}
+  .ask td.px{color:#ff7d89}
+  .bid td.px{color:#4be0ac}
+  .book-mark{font-size:9px;color:var(--gold);border:1px solid rgba(245,185,76,.4);border-radius:2px;padding:0 3px;margin-right:4px}
+  .book-spread{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;margin:5px 0;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);font-size:10px;color:var(--faint);background:#0a111c}
+  .book-spread b{font-family:var(--mono);color:#c6d3e4;font-weight:600}
+
+  /* ---------- trade panel ---------- */
+  .tabs{display:flex;gap:2px;background:#0a111c;border:1px solid var(--line-soft);border-radius:6px;padding:3px;margin-bottom:12px}
+  .tab{flex:1;border:0;background:transparent;color:var(--muted);padding:7px 8px;border-radius:4px;font-size:12px;font-weight:600}
+  .tab.active{background:#1a2a42;color:#e8f0fb;box-shadow:inset 0 0 0 1px #2c4568}
+  .form-grid{display:grid;grid-template-columns:78px 1fr;gap:8px 10px;align-items:center}
+  .form-grid label{color:var(--muted);font-size:11px}
+  .field{position:relative}
+  .field input,.field select{
+    width:100%;background:#080e17;border:1px solid #2a3a51;border-radius:5px;padding:8px 9px;
+    font-family:var(--mono);font-size:13px;outline:none;transition:border .15s,box-shadow .15s;
+  }
+  .field input:focus,.field select:focus{border-color:#4277c7;box-shadow:0 0 0 2px rgba(76,141,255,.13)}
+  .field .unit{position:absolute;right:9px;top:50%;transform:translateY(-50%);color:var(--faint);font-size:10px;pointer-events:none}
+  .field input{padding-right:34px}
+  .side-toggle{display:flex;gap:6px}
+  .side-btn{flex:1;border:1px solid #2a3a51;background:#0a111c;border-radius:5px;padding:7px;color:var(--muted);font-weight:700;font-size:12px}
+  .side-btn.buy.active{background:var(--up-soft);border-color:rgba(255,77,94,.55);color:#ff8590}
+  .side-btn.sell.active{background:var(--down-soft);border-color:rgba(34,201,139,.5);color:#4be0ac}
+  .quick-row{display:flex;gap:5px;flex-wrap:wrap;margin:2px 0 10px}
+  .quick{border:1px solid #2a3a51;background:#0c1522;color:#9fb0c6;padding:4px 7px;border-radius:3px;font-size:10px}
+  .quick:hover{border-color:#4277c7;color:#d7e5f7}
+  .quick.danger{border-color:rgba(255,77,94,.35);color:#ef8b95}
+  .quick.good{border-color:rgba(34,201,139,.32);color:#69dcb4}
+  .primary{
+    width:100%;border:1px solid #2f6fce;border-radius:5px;padding:10px;font-weight:750;letter-spacing:1px;
+    background:linear-gradient(180deg,#2e6bc8,#2155a6);color:#fff;box-shadow:0 6px 18px rgba(34,93,190,.24);
+  }
+  .primary:hover{background:linear-gradient(180deg,#3979d9,#2862b9)}
+  .primary.block{background:linear-gradient(180deg,#9b6a1f,#7b4f11);border-color:#c48a2f;box-shadow:0 6px 18px rgba(196,138,47,.20)}
+  .primary.block:hover{background:linear-gradient(180deg,#b37b26,#8d5c16)}
+  .form-tip{margin-top:8px;color:var(--faint);font-size:10px;line-height:1.55}
+  .form-tip b{color:#c9a565;font-weight:600}
+  .calc-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0 10px}
+  .calc-cell{border:1px solid #25354c;background:#0a111c;border-radius:4px;padding:6px 7px}
+  .calc-cell span{display:block;color:var(--faint);font-size:9px;margin-bottom:2px}
+  .calc-cell b{font-family:var(--mono);font-size:12px;color:#e4edf9}
+
+  /* ---------- right column ---------- */
+  .right-col{display:flex;flex-direction:column;gap:12px}
+  .account-total{padding:4px 0 10px;border-bottom:1px solid var(--line-soft)}
+  .account-total span{color:var(--muted);font-size:11px}
+  .account-total b{display:block;font-family:var(--mono);font-size:24px;letter-spacing:-.4px;margin-top:2px;color:#f1f6fd}
+  .account-total em{font-style:normal;font-size:10px;color:var(--faint)}
+  .kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-top:10px}
+  .kv span{display:block;color:var(--faint);font-size:10px;margin-bottom:2px}
+  .kv b{font-family:var(--mono);font-size:12px;font-weight:600;color:#d5e1f0}
+  .pos-card{margin-top:11px;border-top:1px solid var(--line-soft);padding-top:9px}
+  .pos-line{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:11px}
+  .pos-line .nm{color:#c8d6e8;font-weight:600}
+  .pos-line .px{font-family:var(--mono);color:#9fb3ca}
+  .pnl-up{color:var(--up)}
+  .pnl-down{color:var(--down)}
+  .reset{width:100%;margin-top:10px;border:1px solid #2a3a51;background:#0b1320;color:var(--muted);border-radius:4px;padding:6px;font-size:10px}
+  .reset:hover{border-color:#50647f;color:#d5e1f0}
+
+  .rule-hero{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .rule-hero h3{margin:0;font-size:12px;color:#d8e4f3}
+  .eff{font-size:9px;color:var(--gold);border:1px solid rgba(245,185,76,.35);padding:2px 6px;border-radius:99px;background:rgba(245,185,76,.06);white-space:nowrap}
+  .rule-eq{background:#080e17;border:1px solid #223149;border-radius:5px;padding:8px 9px;font-family:var(--mono);font-size:10px;color:#a9bbd0;line-height:1.75;margin-bottom:8px}
+  .rule-eq b{color:#f0f5fb;font-weight:600}
+  .rule-eq .k{color:#6f8199}
+  .band{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .band-cell{border:1px solid #2a3a51;border-radius:5px;padding:8px;background:#0a111c}
+  .band-cell span{display:block;color:var(--faint);font-size:9px}
+  .band-cell b{display:block;font-family:var(--mono);font-size:16px;line-height:1.25;margin-top:2px}
+  .band-cell .raw{font-size:9px;color:#67788e;margin-top:2px;font-family:var(--mono)}
+  .rule-note{margin-top:9px;padding:7px 8px;border-left:2px solid #a7792f;background:rgba(245,185,76,.045);color:#a9b8ca;font-size:10px;line-height:1.55}
+  .rule-note b{color:#efc77c}
+
+  /* ---------- test + orders ---------- */
+  .lower-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:12px;margin-top:12px}
+  .test-summary{display:flex;align-items:center;gap:12px;padding:8px 10px;background:#08101b;border:1px solid #223149;border-radius:5px;margin-bottom:9px}
+  .test-score{font-family:var(--mono);font-size:24px;font-weight:750;color:var(--down);line-height:1}
+  .test-score.bad{color:var(--up)}
+  .test-copy{font-size:10px;color:var(--muted);line-height:1.55}
+  .test-copy b{color:#d5e1f0}
+  .mini-table{width:100%;border-collapse:collapse;font-size:10px}
+  .mini-table th{color:var(--faint);font-weight:500;text-align:left;padding:4px 6px;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+  .mini-table td{padding:5px 6px;border-bottom:1px solid rgba(34,49,73,.4);font-family:var(--mono);color:#b7c7da}
+  .mini-table td.lbl{font-family:inherit;color:#c5d3e5}
+  .mini-table tr:last-child td{border-bottom:0}
+  .pill{display:inline-block;font-family:inherit;font-size:9px;padding:1px 5px;border-radius:2px;border:1px solid}
+  .pill.pass{color:#53d9ac;border-color:rgba(34,201,139,.4);background:rgba(34,201,139,.08)}
+  .pill.fail{color:#ff7c88;border-color:rgba(255,77,94,.4);background:rgba(255,77,94,.08)}
+  .pill.accept{color:#53d9ac;border-color:rgba(34,201,139,.4)}
+  .pill.reject{color:#ff7c88;border-color:rgba(255,77,94,.4)}
+  .test-run{border:1px solid #2f6fce;background:linear-gradient(180deg,#2b64b9,#1d4c94);color:#fff;padding:6px 10px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap}
+  .test-run:hover{background:linear-gradient(180deg,#3979d9,#2862b9)}
+  .source-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .source-card{border:1px solid #223149;background:#0a111c;border-radius:5px;padding:8px 9px}
+  .source-card .no{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:.2px}
+  .source-card h4{margin:3px 0 4px;font-size:10px;color:#d7e3f2;line-height:1.4;font-weight:600}
+  .source-card p{margin:0;font-size:9px;color:var(--faint);line-height:1.5}
+  .source-card a{font-size:9px}
+
+  .orders-wrap{max-height:250px;overflow:auto}
+  .order-table{width:100%;border-collapse:collapse;font-size:10px}
+  .order-table th{position:sticky;top:0;background:#0d1624;z-index:1;color:var(--faint);font-weight:500;text-align:left;padding:5px 6px;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+  .order-table td{padding:6px;border-bottom:1px solid rgba(34,49,73,.4);font-family:var(--mono);color:#b7c7da;white-space:nowrap}
+  .order-table td.txt{font-family:inherit;color:#9eafc4;white-space:normal}
+  .order-table tr:last-child td{border-bottom:0}
+  .empty{padding:28px 10px;text-align:center;color:var(--faint);font-size:10px}
+  .st-ok{color:#5be0b0 !important}.st-warn{color:#efc36f !important}.st-bad{color:#ff7c88 !important}
+  .order-count{font-family:var(--mono);color:var(--muted);font-size:10px}
+  .cancel-btn{border:1px solid rgba(245,185,76,.45);background:rgba(245,185,76,.08);color:#efc77c;border-radius:3px;padding:2px 7px;font-size:9px;font-weight:600;font-family:inherit;white-space:nowrap}
+  .cancel-btn:hover{background:rgba(245,185,76,.18);border-color:#f5b94c;color:#ffe0a3}
+  .no-action{color:#4d5c71;font-family:inherit}
+
+  /* ---------- sources / footer ---------- */
+  .sources{max-width:1560px;margin:0 auto;padding:0 16px 26px}
+  .source-panel{padding:12px 14px}
+  .source-panel h3{margin:0 0 4px;font-size:12px;color:#dbe6f4}
+  .source-panel .lead{color:var(--faint);font-size:10px;margin-bottom:10px;line-height:1.6}
+  .disclaimer{margin-top:10px;border:1px solid rgba(255,77,94,.25);background:rgba(255,77,94,.045);border-radius:5px;padding:9px 11px;color:#a9b6c8;font-size:10px;line-height:1.65}
+  .disclaimer b{color:#ff9aa4;letter-spacing:1px}
+
+  .toast{
+    position:fixed;right:22px;bottom:22px;max-width:380px;z-index:50;
+    background:#111e30;border:1px solid #33527b;border-left:3px solid var(--blue);border-radius:6px;
+    padding:11px 13px;color:#dfeaf8;font-size:11px;line-height:1.55;
+    box-shadow:0 14px 40px rgba(0,0,0,.45);opacity:0;transform:translateY(12px);pointer-events:none;transition:.22s;
+  }
+  .toast.show{opacity:1;transform:translateY(0)}
+  .toast.bad{border-left-color:var(--up)}
+  .toast.good{border-left-color:var(--down)}
+
+  [hidden]{display:none !important}
+
+  @media (max-width:1220px){
+    .shell{grid-template-columns:200px minmax(0,1fr)}
+    .right-col{grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr;align-items:start}
+  }
+  @media (max-width:900px){
+    .shell{grid-template-columns:1fr}
+    .watchlist{display:none}
+    .market-grid{grid-template-columns:1fr}
+    .lower-grid{grid-template-columns:1fr}
+    .right-col{grid-template-columns:1fr}
+    .q-stats{grid-template-columns:repeat(4,1fr)}
+    .q-price{margin-left:0}
+    .source-strip{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">北</div>
+    <div class="brand-name">北证证券终端</div>
+    <div class="brand-sub">BSE TERMINAL</div>
+  </div>
+  <div class="demo-flag">DEMO</div>
+  <div class="top-spacer"></div>
+  <div class="env-tag">环境 <b>纯前端演示</b></div>
+  <div class="env-tag">行情 <b>合成</b></div>
+  <div class="env-tag">网络 <b>0 请求</b></div>
+  <div class="clock mono" id="demoClock">2026-11-12 11:30:00</div>
+</header>
+
+<div class="ticker-strip" aria-hidden="true">
+  <div class="ticker-label">DEMO FEED</div>
+  <div class="ticker-track">
+    <span>本页面所有价格、盘口、成交、资金与持仓均为<b>合成演示数据</b></span>
+    <span>不连接交易所、券商、行情源或任何网络接口</span>
+    <span>3.6.5(2)(3) 大宗价格区间校验：<b>边界含本数，越界 0.01 元拒绝</b></span>
+    <span>本页面所有价格、盘口、成交、资金与持仓均为<b>合成演示数据</b></span>
+    <span>不连接交易所、券商、行情源或任何网络接口</span>
+    <span>3.6.5(2)(3) 大宗价格区间校验：<b>边界含本数，越界 0.01 元拒绝</b></span>
+  </div>
+</div>
+
+<div class="shell">
+  <!-- watchlist -->
+  <aside class="panel watchlist">
+    <div class="panel-hd"><h2>自选观察</h2><span class="hint">合成</span></div>
+    <div class="wl-head"><span>名称 / 代码</span><span>最新 / 涨跌</span></div>
+    <button class="wl-row active" type="button">
+      <span><span class="wl-name">N星澜</span><br><span class="wl-code">920999</span></span>
+      <span><span class="wl-px up">10.02</span><br><span class="wl-pct up">+1.42%</span></span>
+    </button>
+    <button class="wl-row" type="button" data-inactive="1">
+      <span><span class="wl-name">曙光智造</span><br><span class="wl-code">920888</span></span>
+      <span><span class="wl-px down">18.66</span><br><span class="wl-pct down">-0.91%</span></span>
+    </button>
+    <button class="wl-row" type="button" data-inactive="1">
+      <span><span class="wl-name">云脉科技</span><br><span class="wl-code">920777</span></span>
+      <span><span class="wl-px up">7.35</span><br><span class="wl-pct up">+2.08%</span></span>
+    </button>
+    <button class="wl-row" type="button" data-inactive="1">
+      <span><span class="wl-name">北岭新材</span><br><span class="wl-code">920666</span></span>
+      <span><span class="wl-px down">24.10</span><br><span class="wl-pct down">-1.35%</span></span>
+    </button>
+    <button class="wl-row" type="button" data-inactive="1">
+      <span><span class="wl-name">海岳精工</span><br><span class="wl-code">920555</span></span>
+      <span><span class="wl-px up">12.88</span><br><span class="wl-pct up">+0.55%</span></span>
+    </button>
+    <div class="mini-note">
+      <b>演示聚焦 920999。</b><br>
+      该标的标记为“无价格涨跌幅限制”，用于展示大宗交易申报价格区间。其余标的为静态合成行情。
+    </div>
+    <div class="mini-note" style="border-style:solid;border-color:#243751;color:#9fb0c6">
+      交易日：2026-11-12<br>时段：午间休市快照
+    </div>
+  </aside>
+
+  <main>
+    <!-- quote -->
+    <section class="panel quote-card">
+      <div class="q-top">
+        <div>
+          <div class="q-title">
+            <h1>N星澜</h1>
+            <span class="q-code">920999.BJ</span>
+            <span class="q-badge warn">无价格涨跌幅限制</span>
+            <span class="q-badge">合成行情</span>
+          </div>
+          <div class="q-badges" style="margin-top:5px">
+            <span class="q-badge">新股上市首日（模拟）</span>
+            <span class="q-badge">人民币普通股</span>
+            <span class="q-badge">最小价格变动 0.01 元</span>
+          </div>
+        </div>
+        <div class="q-price">
+          <div class="q-last mono" id="quoteLast">10.02</div>
+          <div class="q-chg mono" id="quoteChg">+0.14&nbsp;&nbsp;+1.42%</div>
+        </div>
+      </div>
+      <div class="q-stats">
+        <div class="q-stat"><span>今开</span><b id="quoteOpen">9.95</b></div>
+        <div class="q-stat"><span>昨收</span><b id="quotePrev">9.88</b></div>
+        <div class="q-stat"><span>最高</span><b id="quoteHigh" class="up">15.20</b></div>
+        <div class="q-stat"><span>最低</span><b id="quoteLow" class="down">6.80</b></div>
+        <div class="q-stat"><span>成交量</span><b id="quoteVol">800.00 万股</b></div>
+        <div class="q-stat"><span>成交额</span><b id="quoteAmt">8,000.00 万元</b></div>
+        <div class="q-stat"><span>均价</span><b id="quoteAvg">10.00</b></div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-meta"><span>分时走势 · 合成</span><span>11:30 休市</span></div>
+        <div class="chart-box">
+          <div class="chart-tag">近 30 分钟</div>
+          <svg viewBox="0 0 760 120" preserveAspectRatio="none" role="img" aria-label="合成分时走势图">
+            <defs>
+              <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ff4d5e" stop-opacity=".30"/>
+                <stop offset="100%" stop-color="#ff4d5e" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="28" x2="760" y2="28" stroke="#1c2a3e" stroke-width="1" stroke-dasharray="3 5"/>
+            <line x1="0" y1="60" x2="760" y2="60" stroke="#1c2a3e" stroke-width="1" stroke-dasharray="3 5"/>
+            <line x1="0" y1="92" x2="760" y2="92" stroke="#1c2a3e" stroke-width="1" stroke-dasharray="3 5"/>
+            <path d="M0,90 L38,84 L76,87 L114,72 L152,78 L190,63 L228,57 L266,66 L304,61 L342,47 L380,52 L418,41 L456,48 L494,36 L532,44 L570,35 L608,41 L646,30 L684,36 L722,27 L760,31 L760,120 L0,120 Z" fill="url(#areaFill)"/>
+            <polyline points="0,90 38,84 76,87 114,72 152,78 190,63 228,57 266,66 304,61 342,47 380,52 418,41 456,48 494,36 532,44 570,35 608,41 646,30 684,36 722,27 760,31" fill="none" stroke="#ff6472" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+            <line x1="0" y1="21" x2="760" y2="21" stroke="#3d5a80" stroke-width="1" stroke-dasharray="2 6" opacity=".6"/>
+            <text x="6" y="17" fill="#62758c" font-size="9">10.15</text>
+            <text x="6" y="117" fill="#62758c" font-size="9">9.90</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- book + trade -->
+    <div class="market-grid">
+      <section class="panel">
+        <div class="panel-hd"><h2>五档盘口</h2><span class="hint">单位：元 / 手</span></div>
+        <div class="panel-bd" style="padding:9px 10px 12px">
+          <table class="book-table">
+            <thead><tr><th>档位</th><th>价格</th><th>委托量</th></tr></thead>
+            <tbody id="askBook"></tbody>
+          </table>
+          <div class="book-spread">
+            <span>最新 <b id="bookLast">10.02</b></span>
+            <span>价差 <b id="bookSpread">0.11</b></span>
+            <span>委比 <b id="bookRatio">+12.6%</b></span>
+          </div>
+          <table class="book-table">
+            <tbody id="bidBook"></tbody>
+          </table>
+          <div style="display:flex;justify-content:space-between;margin-top:9px;color:#5c6b80;font-size:9px">
+            <span>买一 9.90 × 1,100 手</span><span>卖一 10.10 × 1,200 手</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-hd"><h2>委托下单</h2><span class="hint">模拟撮合</span></div>
+        <div class="panel-bd" style="padding:10px 12px 12px">
+          <div class="tabs" role="tablist">
+            <button class="tab active" id="tabLimit" type="button" role="tab">限价委托</button>
+            <button class="tab" id="tabBlock" type="button" role="tab">大宗委托</button>
+          </div>
+
+          <div id="panelLimit">
+            <div class="form-grid">
+              <label>方向</label>
+              <div class="side-toggle">
+                <button class="side-btn buy active" id="limitBuy" type="button" data-limit-side="buy">买入</button>
+                <button class="side-btn sell" id="limitSell" type="button" data-limit-side="sell">卖出</button>
+              </div>
+              <label>委托价格</label>
+              <div class="field"><input id="limitPrice" value="10.10" inputmode="decimal" autocomplete="off"><span class="unit">元</span></div>
+              <label>委托数量</label>
+              <div class="field"><input id="limitQty" value="10000" inputmode="numeric" autocomplete="off"><span class="unit">股</span></div>
+            </div>
+            <div class="calc-strip">
+              <div class="calc-cell"><span>预估金额</span><b id="limitAmount">¥101,000.00</b></div>
+              <div class="calc-cell"><span>可用资金</span><b id="limitCash">¥5,000,000.00</b></div>
+              <div class="calc-cell"><span>可卖数量</span><b id="limitAvail">200,000</b></div>
+            </div>
+            <div class="quick-row">
+                            <button class="quick" type="button" data-limit-price="10.10">卖一 10.10</button>
+              <button class="quick" type="button" data-limit-price="10.00">整数 10.00</button>
+              <button class="quick" type="button" data-limit-price="9.90">买一 9.90</button>
+              <button class="quick" type="button" data-limit-qty="100">100 股</button>
+              <button class="quick" type="button" data-limit-qty="10000">1 万股</button>
+            </div>
+            <button class="primary" id="limitSubmit" type="button">提交限价委托（模拟）</button>
+            <div class="form-tip">限价委托按 100 股整数倍申报；演示撮合规则：买入价 ≥ 卖一即按卖一成交，卖出价 ≤ 买一即按买一成交，否则挂单并冻结相应资金/股份。</div>
+          </div>
+
+          <div id="panelBlock" hidden>
+            <div class="calc-strip" style="margin-top:0">
+              <div class="calc-cell"><span>价格下限</span><b id="blockLower">7.00</b></div>
+              <div class="calc-cell"><span>价格上限</span><b id="blockUpper">13.00</b></div>
+              <div class="calc-cell"><span>基准均价</span><b id="blockAvg">10.00</b></div>
+            </div>
+            <div class="form-grid">
+              <label>方向</label>
+              <div class="side-toggle">
+                <button class="side-btn buy active" id="blockBuy" type="button" data-block-side="buy">买入</button>
+                <button class="side-btn sell" id="blockSell" type="button" data-block-side="sell">卖出</button>
+              </div>
+              <label>申报价格</label>
+              <div class="field"><input id="blockPrice" value="10.00" inputmode="decimal" autocomplete="off"><span class="unit">元</span></div>
+              <label>申报数量</label>
+              <div class="field"><input id="blockQty" value="100000" inputmode="numeric" autocomplete="off"><span class="unit">股</span></div>
+            </div>
+            <div class="quick-row">
+              <button class="quick good" type="button" data-block-price="lower">填下限</button>
+              <button class="quick good" type="button" data-block-price="upper">填上限</button>
+              <button class="quick danger" type="button" data-block-offset="-1">下限 −0.01</button>
+              <button class="quick danger" type="button" data-block-offset="1">上限 +0.01</button>
+              <button class="quick" type="button" data-block-price="avg">填均价</button>
+            </div>
+            <button class="primary block" id="blockSubmit" type="button">提交大宗申报（模拟）</button>
+            <div class="form-tip"><b>3.6.5(2)(3)</b>：仅适用于无价格涨跌幅限制股票的大宗交易申报。价格等于上/下限可通过；高于上限或低于下限 <b>0.01 元</b>即拒绝。单笔数量 ≥ 10 万股，或金额 ≥ 100 万元。</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- test + orders -->
+    <div class="lower-grid">
+      <section class="panel">
+        <div class="panel-hd">
+          <h2>3.6.5(2)(3) 边界校验台</h2>
+          <button class="test-run" id="runTests" type="button">运行边界校验</button>
+        </div>
+        <div class="panel-bd" style="padding:10px 11px 11px">
+          <div class="test-summary">
+            <div class="test-score" id="testScore">—</div>
+            <div class="test-copy" id="testSummary"><b>等待校验。</b><br>点击右上按钮，真实运行 5 个边界用例：上/下限恰好通过，越界 0.01 元拒绝。</div>
+          </div>
+          <table class="mini-table">
+            <thead><tr><th>用例</th><th>价格</th><th>预期</th><th>实际</th><th>结果</th></tr></thead>
+            <tbody id="testBody">
+              <tr><td class="lbl" colspan="5" style="text-align:center;color:#5c6b80;padding:18px 4px">尚未运行边界校验</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-hd"><h2>模拟委托流水</h2><span class="order-count" id="orderCount">0 笔</span></div>
+        <div class="panel-bd" style="padding:0">
+          <div class="orders-wrap">
+            <table class="order-table">
+              <thead><tr><th>委托编号</th><th>时间</th><th>类型</th><th>方向</th><th>价格</th><th>数量</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody id="ordersBody">
+                <tr><td colspan="8" class="empty">暂无委托。提交一笔限价委托或大宗申报后将在此显示。</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- right column -->
+  <aside class="right-col">
+    <section class="panel">
+      <div class="panel-hd"><h2>虚拟账户</h2><span class="hint">初始资金 500 万</span></div>
+      <div class="panel-bd" style="padding:11px 12px 12px">
+        <div class="account-total">
+          <span>总资产（元）</span>
+          <b id="totalAssets">7,004,000.00</b>
+          <em>现金 + 冻结 + 持仓市值</em>
+        </div>
+        <div class="kv-grid">
+          <div class="kv"><span>可用资金</span><b id="cash">5,000,000.00</b></div>
+          <div class="kv"><span>冻结资金</span><b id="frozen">0.00</b></div>
+          <div class="kv"><span>持仓市值</span><b id="marketValue">2,004,000.00</b></div>
+          <div class="kv"><span>浮动盈亏</span><b id="positionPnl" class="pnl-up">+84,000.00</b></div>
+        </div>
+        <div class="pos-card">
+          <div class="pos-line"><span class="nm">920999 N星澜</span><span class="px" id="positionQty">200,000 股</span></div>
+          <div class="pos-line"><span class="muted">成本 / 现价</span><span class="px" id="positionCost">9.60 / 10.02</span></div>
+          <div class="pos-line"><span class="muted">可用 / 冻结</span><span class="px" id="positionAvail">200,000 / 0</span></div>
+        </div>
+        <button class="reset" id="resetAccount" type="button">重置虚拟账户与委托流水</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-hd"><h2>价格区间</h2><span class="hint">按官方口径</span></div>
+      <div class="panel-bd" style="padding:10px 12px 12px">
+        <div class="rule-hero">
+          <h3>无涨跌幅限制 · 大宗申报</h3>
+          <span class="eff">2026-10-26 起</span>
+        </div>
+        <div class="rule-eq">
+          <span class="k">均价</span> = 已成交金额 ÷ 已成交股数<br>
+          <b id="avgFormula">10.00</b> = 80,000,000.00 ÷ 8,000,000<br><br>
+          <span class="k">上限</span> = min(均价 × 130%, 已成交最高价)<br>
+          <b id="upperFormula">13.00</b> = min(13.00, 15.20)<br><br>
+          <span class="k">下限</span> = max(均价 × 70%, 已成交最低价)<br>
+          <b id="lowerFormula">7.00</b> = max(7.00, 6.80)
+        </div>
+        <div class="band">
+          <div class="band-cell"><span>申报价格上限</span><b class="up" id="ruleUpper">¥13.00</b><div class="raw" id="ruleUpperRaw">min(10.00×130%, 15.20)</div></div>
+          <div class="band-cell"><span>申报价格下限</span><b class="down" id="ruleLower">¥7.00</b><div class="raw" id="ruleLowerRaw">max(10.00×70%, 6.80)</div></div>
+        </div>
+        <div class="rule-note"><b>边界含本数。</b>价格等于上限或下限可通过；高于上限 0.01 元、或低于下限 0.01 元，拒绝。计算基于当日已成交金额、已成交股数、已成交最高价与最低价。</div>
+      </div>
+    </section>
+  </aside>
+</div>
+
+<section class="sources">
+  <div class="panel source-panel">
+    <h3>规则来源与适用口径</h3>
+    <div class="lead">下列公告号、标题、日期与适用条款为本演示的规则依据。页面不联网抓取，具体条文以北京证券交易所官网原文为准。</div>
+    <div class="source-strip">
+      <div class="source-card">
+        <div class="no">北证公告〔2026〕17号 · 2026-04-24</div>
+        <h4>关于发布《北京证券交易所交易规则》的公告</h4>
+        <p>发布修订后的《北京证券交易所交易规则》，除特别说明条款外自 2026-07-06 起施行。</p>
+        <p style="margin-top:5px"><a href="https://www.bse.cn/jygl_list/200028217.html" target="_blank" rel="noreferrer">北证公告〔2026〕17号原文</a></p>
+      </div>
+      <div class="source-card">
+        <div class="no">北证公告〔2026〕34号 · 2026-08-21</div>
+        <h4>关于实施《北京证券交易所交易规则》相关条款的公告</h4>
+        <p>仅涉及第 4.5.1—4.5.4 条（风险警示及退市整理股票），自 2026-08-31 起实施。</p>
+        <p style="margin-top:5px"><a href="https://www.bse.cn/jygl_list/200029142.html" target="_blank" rel="noreferrer">北证公告〔2026〕34号原文</a></p>
+      </div>
+      <div class="source-card">
+        <div class="no">北证公告〔2026〕43号 · 2026-10-16</div>
+        <h4>关于实施《北京证券交易所交易规则》相关条款的公告</h4>
+        <p>第 3.6.5 条第二款、第三款（无价格涨跌幅限制股票的大宗交易申报价格范围）自 2026-10-26 起实施。</p>
+        <p style="margin-top:5px"><a href="https://www.bse.cn/jygl_list/200029608.html" target="_blank" rel="noreferrer">北证公告〔2026〕43号原文</a></p>
+      </div>
+    </div>
+    <div class="disclaimer"><b>DEMO · 重要提示</b>　本页面为纯前端交互演示，所有行情、五档盘口、成交、资金、持仓与委托均为合成数据，不连接任何交易所、券商、行情源或网络接口，不产生真实交易，不构成投资建议。规则实现仅覆盖 3.6.5(2)(3) 的价格区间计算与演示校验；公告 34 号涉及的 4.5.1—4.5.4 条不在本页实现范围内。</div>
+  </div>
+</section>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>window.__errs=[];window.addEventListener("error",function(e){window.__errs.push(e.message||String(e));});</script>
+<script>
+(function(){
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+  const nfMoney = new Intl.NumberFormat("zh-CN", {minimumFractionDigits:2, maximumFractionDigits:2});
+  const nfInt = new Intl.NumberFormat("zh-CN");
+  const fmtMoney = cents => nfMoney.format(cents / 100);
+  const fmtPx = cents => (cents / 100).toFixed(2);
+  const fmtInt = n => nfInt.format(n);
+  const fmtAvg = cents => (cents / 100).toFixed(Math.abs(cents % 1) < 0.000001 ? 2 : 4);
+  const parsePx = value => {
+    const n = Number(String(value).trim());
+    return Number.isFinite(n) ? Math.round(n * 100) : NaN;
+  };
+  const pad = n => String(n).padStart(2, "0");
+  const nowTime = () => {
+    const d = new Date();
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  };
+
+  const market = {
+    code: "920999", name: "N星澜",
+    prevClose: 988, open: 995, last: 1002, high: 1520, low: 680,
+    shares: 8000000, amount: 8000000000,
+    asks: [[1010,120000],[1020,91000],[1030,68000],[1040,45000],[1050,32000]],
+    bids: [[990,110000],[980,85000],[970,64000],[960,47000],[950,30000]]
+  };
+
+  const initial = () => ({
+    cash: 500000000, frozen: 0, shares: 200000, frozenShares: 0,
+    cost: 960, orders: [], limitSide: "buy", blockSide: "buy"
+  });
+
+  let state = initial();
+  let toastTimer = null;
+  let orderSeq = 0;
+  const ORDER_PREFIX = "D20261112-";
+
+  function nextOrderNo() {
+    orderSeq += 1;
+    return ORDER_PREFIX + String(orderSeq).padStart(4, "0");
+  }
+
+  function rule() {
+    const avgExact = market.amount / market.shares;
+    const upperExact = Math.min(avgExact * 1.3, market.high);
+    const lowerExact = Math.max(avgExact * 0.7, market.low);
+    return {avgExact, upperExact, lowerExact, upper: Math.round(upperExact), lower: Math.round(lowerExact)};
+  }
+
+  function evaluateBlockPrice(price, r) {
+    if (price < r.lower) return {ok:false, reason:`低于下限 ¥${fmtPx(r.lower)}，差 ¥${fmtPx(r.lower - price)}`};
+    if (price > r.upper) return {ok:false, reason:`高于上限 ¥${fmtPx(r.upper)}，超 ¥${fmtPx(price - r.upper)}`};
+    return {ok:true, reason:`在区间 [¥${fmtPx(r.lower)}, ¥${fmtPx(r.upper)}] 内`};
+  }
+
+  function toast(message, kind) {
+    const el = $("toast");
+    el.textContent = message;
+    el.className = "toast show" + (kind ? " " + kind : "");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.className = "toast"; }, 4800);
+  }
+
+  function renderQuote() {
+    const delta = market.last - market.prevClose;
+    const pct = delta / market.prevClose * 100;
+    const up = delta >= 0;
+    const last = $("quoteLast");
+    last.textContent = fmtPx(market.last);
+    last.className = "q-last mono " + (up ? "up" : "down");
+    const chg = $("quoteChg");
+    chg.innerHTML = `${up ? "+" : ""}${fmtPx(delta)}&nbsp;&nbsp;${up ? "+" : ""}${pct.toFixed(2)}%`;
+    chg.className = "q-chg mono " + (up ? "up" : "down");
+    $("quoteOpen").textContent = fmtPx(market.open);
+    $("quotePrev").textContent = fmtPx(market.prevClose);
+    $("quoteHigh").textContent = fmtPx(market.high);
+    $("quoteLow").textContent = fmtPx(market.low);
+    $("quoteVol").textContent = (market.shares / 10000).toFixed(2) + " 万股";
+    $("quoteAmt").textContent = (market.amount / 100 / 10000).toLocaleString("zh-CN", {minimumFractionDigits:2, maximumFractionDigits:2}) + " 万元";
+    $("quoteAvg").textContent = fmtAvg(rule().avgExact);
+    $("bookLast").textContent = fmtPx(market.last);
+  }
+
+  function renderBook() {
+    const cn = ["一","二","三","四","五"];
+    const maxVol = Math.max.apply(null, market.asks.concat(market.bids).map(x => x[1]));
+    const askRows = [];
+    for (let i = market.asks.length - 1; i >= 0; i--) {
+      const price = market.asks[i][0], vol = market.asks[i][1];
+      askRows.push(`<tr class="ask"><td>卖${cn[i]}</td><td class="px">${fmtPx(price)}</td><td class="dp"><i class="depth" style="width:${(vol/maxVol*100).toFixed(1)}%"></i><span style="position:relative;z-index:1">${fmtInt(vol/100)}</span></td></tr>`);
+    }
+    $("askBook").innerHTML = askRows.join("");
+    $("bidBook").innerHTML = market.bids.map((level, i) =>
+      `<tr class="bid"><td>买${cn[i]}</td><td class="px">${fmtPx(level[0])}</td><td class="dp"><i class="depth" style="width:${(level[1]/maxVol*100).toFixed(1)}%"></i><span style="position:relative;z-index:1">${fmtInt(level[1]/100)}</span></td></tr>`
+    ).join("");
+    const totalBid = market.bids.reduce((a,b) => a + b[1], 0);
+    const totalAsk = market.asks.reduce((a,b) => a + b[1], 0);
+    const ratio = (totalBid - totalAsk) / (totalBid + totalAsk) * 100;
+    $("bookSpread").textContent = fmtPx(market.asks[0][0] - market.bids[0][0]);
+    $("bookRatio").textContent = (ratio >= 0 ? "+" : "") + ratio.toFixed(1) + "%";
+    $("bookRatio").className = ratio >= 0 ? "up" : "down";
+  }
+
+  function renderRule() {
+    const r = rule();
+    $("avgFormula").textContent = fmtAvg(r.avgExact);
+    $("upperFormula").textContent = fmtPx(r.upper);
+    $("lowerFormula").textContent = fmtPx(r.lower);
+    $("ruleUpper").textContent = "¥" + fmtPx(r.upper);
+    $("ruleLower").textContent = "¥" + fmtPx(r.lower);
+    $("ruleUpperRaw").textContent = `min(${fmtAvg(r.avgExact)}×130%, ${fmtPx(market.high)})`;
+    $("ruleLowerRaw").textContent = `max(${fmtAvg(r.avgExact)}×70%, ${fmtPx(market.low)})`;
+    $("blockLower").textContent = fmtPx(r.lower);
+    $("blockUpper").textContent = fmtPx(r.upper);
+    $("blockAvg").textContent = fmtAvg(r.avgExact);
+    $("blockPrice").placeholder = `${fmtPx(r.lower)} ~ ${fmtPx(r.upper)}`;
+  }
+
+  function updateLimitAmount() {
+    const px = parsePx($("limitPrice").value);
+    const qty = Number($("limitQty").value);
+    $("limitAmount").textContent = (Number.isFinite(px) && Number.isFinite(qty) && qty > 0)
+      ? "¥" + fmtMoney(px * qty) : "—";
+  }
+
+  function renderAccount() {
+    const mv = state.shares * market.last;
+    const total = state.cash + state.frozen + mv;
+    const pnl = (market.last - state.cost) * state.shares;
+    $("totalAssets").textContent = fmtMoney(total);
+    $("cash").textContent = fmtMoney(state.cash);
+    $("frozen").textContent = fmtMoney(state.frozen);
+    $("marketValue").textContent = fmtMoney(mv);
+    $("positionPnl").textContent = (pnl >= 0 ? "+" : "") + fmtMoney(pnl);
+    $("positionPnl").className = pnl >= 0 ? "pnl-up" : "pnl-down";
+    $("positionQty").textContent = fmtInt(state.shares) + " 股";
+    $("positionCost").textContent = `${fmtPx(state.cost)} / ${fmtPx(market.last)}`;
+    $("positionAvail").textContent = `${fmtInt(state.shares - state.frozenShares)} / ${fmtInt(state.frozenShares)}`;
+    $("limitCash").textContent = "¥" + fmtMoney(state.cash);
+    $("limitAvail").textContent = fmtInt(state.shares - state.frozenShares);
+    updateLimitAmount();
+  }
+
+  function renderOrders() {
+    $("orderCount").textContent = state.orders.length + " 笔";
+    if (!state.orders.length) {
+      $("ordersBody").innerHTML = '<tr><td colspan="8" class="empty">暂无委托。提交一笔限价委托或大宗申报后将在此显示。</td></tr>';
+      return;
+    }
+    $("ordersBody").innerHTML = state.orders.slice(0, 30).map(o => {
+      const sideClass = o.side === "买入" ? "up" : "down";
+      const canCancel = o.status === "已报" || o.status === "已受理";
+      const action = canCancel
+        ? '<button class="cancel-btn" type="button" data-cancel="' + o.no + '">撤单</button>'
+        : '<span class="no-action">—</span>';
+      const note = o.cancelTime
+        ? `${o.note}<br><b style="color:#efc77c;font-weight:600">${o.cancelTime} 已撤单：${o.cancelNote}</b>`
+        : o.note;
+      return `<tr><td>${o.no}</td><td>${o.time}</td><td>${o.type}</td><td class="${sideClass}">${o.side}</td><td>${fmtPx(o.price)}</td><td>${fmtInt(o.qty)}</td><td class="txt ${o.cls || ""}">${o.status}<br><span style="color:#66788f">${note}</span></td><td>${action}</td></tr>`;
+    }).join("");
+  }
+
+  function renderAll() {
+    renderQuote(); renderBook(); renderRule(); renderAccount(); renderOrders();
+  }
+
+  function addOrder(o) {
+    state.orders.unshift(Object.assign({no: nextOrderNo(), time: nowTime()}, o));
+    renderOrders();
+  }
+
+  function cancelOrder(no) {
+    const o = state.orders.find(x => x.no === no);
+    if (!o) { toast("撤单失败：未找到该委托编号。", "bad"); return; }
+    if (o.status !== "已报" && o.status !== "已受理") {
+      toast(`撤单失败：委托 ${o.no} 当前状态「${o.status}」，不可撤单。`, "bad");
+      return;
+    }
+    let release = "";
+    if (o.side === "买入" && o.freezeAmount) {
+      state.frozen -= o.freezeAmount;
+      state.cash += o.freezeAmount;
+      release = `释放冻结资金 ¥${fmtMoney(o.freezeAmount)}`;
+    } else if (o.side === "卖出" && o.freezeQty) {
+      state.frozenShares -= o.freezeQty;
+      release = `释放冻结股份 ${fmtInt(o.freezeQty)} 股`;
+    }
+    o.status = "已撤";
+    o.cls = "st-warn";
+    o.cancelTime = nowTime();
+    o.cancelNote = release ? release + "（模拟）" : "无冻结资源需释放（模拟）";
+    renderAll();
+    toast(`委托 ${o.no} 已撤单：${o.cancelNote}。`, "");
+  }
+
+  function submitLimit() {
+    const px = parsePx($("limitPrice").value);
+    const qty = Number($("limitQty").value);
+    if (!Number.isFinite(px) || px <= 0) { toast("限价委托失败：请输入有效的委托价格。", "bad"); return; }
+    if (!Number.isInteger(qty) || qty < 100 || qty % 100 !== 0) {
+      toast("限价委托失败：数量须为 100 股的正整数倍。", "bad"); return;
+    }
+    const side = state.limitSide;
+    if (side === "buy") {
+      const amount = px * qty;
+      const bestAsk = market.asks[0][0];
+      if (amount > state.cash) { toast(`限价买入失败：可用资金不足，需 ¥${fmtMoney(amount)}。`, "bad"); return; }
+      if (px >= bestAsk) {
+        const fill = bestAsk * qty;
+        if (fill > state.cash) { toast("限价买入失败：按卖一价成交所需资金不足。", "bad"); return; }
+        state.cash -= fill;
+        state.shares += qty;
+        addOrder({type:"限价", side:"买入", price:bestAsk, qty, status:"已成交", note:"按卖一价成交（模拟）", cls:"st-ok"});
+        toast(`限价买入已模拟成交：${fmtInt(qty)} 股 @ ¥${fmtPx(bestAsk)}。`, "good");
+      } else {
+        state.cash -= amount;
+        state.frozen += amount;
+        addOrder({type:"限价", side:"买入", price:px, qty, status:"已报", note:"挂单 · 资金冻结（模拟）", cls:"st-warn", freezeAmount: amount});
+        toast(`限价买入已受理：${fmtInt(qty)} 股 @ ¥${fmtPx(px)}，等待模拟撮合。`, "good");
+      }
+    } else {
+      const available = state.shares - state.frozenShares;
+      if (qty > available) { toast(`限价卖出失败：可卖数量不足，当前可卖 ${fmtInt(available)} 股。`, "bad"); return; }
+      const bestBid = market.bids[0][0];
+      if (px <= bestBid) {
+        state.shares -= qty;
+        state.cash += bestBid * qty;
+        addOrder({type:"限价", side:"卖出", price:bestBid, qty, status:"已成交", note:"按买一价成交（模拟）", cls:"st-ok"});
+        toast(`限价卖出已模拟成交：${fmtInt(qty)} 股 @ ¥${fmtPx(bestBid)}。`, "good");
+      } else {
+        state.frozenShares += qty;
+        addOrder({type:"限价", side:"卖出", price:px, qty, status:"已报", note:"挂单 · 股份冻结（模拟）", cls:"st-warn", freezeQty: qty});
+        toast(`限价卖出已受理：${fmtInt(qty)} 股 @ ¥${fmtPx(px)}，等待模拟撮合。`, "good");
+      }
+    }
+    renderAll();
+  }
+
+  function submitBlock() {
+    const px = parsePx($("blockPrice").value);
+    const qty = Number($("blockQty").value);
+    if (!Number.isFinite(px) || px <= 0) { toast("大宗申报失败：请输入有效的申报价格。", "bad"); return; }
+    if (!Number.isInteger(qty) || qty < 100 || qty % 100 !== 0) {
+      toast("大宗申报失败：数量须为 100 股的正整数倍。", "bad"); return;
+    }
+    const r = rule();
+    const check = evaluateBlockPrice(px, r);
+    const sideText = state.blockSide === "buy" ? "买入" : "卖出";
+    if (!check.ok) {
+      addOrder({type:"大宗", side:sideText, price:px, qty, status:"已拒绝", note:check.reason, cls:"st-bad"});
+      toast(`大宗申报被拒绝：${check.reason}。`, "bad");
+      return;
+    }
+    const amount = px * qty;
+    if (qty < 100000 && amount < 100000000) {
+      toast("大宗申报失败：单笔数量须 ≥ 10 万股，或金额 ≥ 100 万元。", "bad"); return;
+    }
+    if (state.blockSide === "buy") {
+      if (amount > state.cash) { toast(`大宗买入失败：可用资金不足，需 ¥${fmtMoney(amount)}。`, "bad"); return; }
+      state.cash -= amount;
+      state.frozen += amount;
+      addOrder({type:"大宗", side:"买入", price:px, qty, status:"已受理", note:"价格合规 · 待成交，资金冻结（模拟）", cls:"st-warn", freezeAmount: amount});
+      toast(`大宗买入已受理（模拟）：${fmtInt(qty)} 股 @ ¥${fmtPx(px)}，价格在 [¥${fmtPx(r.lower)}, ¥${fmtPx(r.upper)}] 内。`, "good");
+    } else {
+      const available = state.shares - state.frozenShares;
+      if (qty > available) { toast(`大宗卖出失败：可卖数量不足，当前可卖 ${fmtInt(available)} 股。`, "bad"); return; }
+      state.frozenShares += qty;
+      addOrder({type:"大宗", side:"卖出", price:px, qty, status:"已受理", note:"价格合规 · 待成交，股份冻结（模拟）", cls:"st-warn", freezeQty: qty});
+      toast(`大宗卖出已受理（模拟）：${fmtInt(qty)} 股 @ ¥${fmtPx(px)}，价格在 [¥${fmtPx(r.lower)}, ¥${fmtPx(r.upper)}] 内。`, "good");
+    }
+    renderAll();
+  }
+
+  function runBoundaryTests() {
+    const r = rule();
+    const mid = Math.round((r.lower + r.upper) / 2);
+    const cases = [
+      {label:"上限价（等于上限）", price:r.upper, expect:true},
+      {label:"上限 + 0.01", price:r.upper + 1, expect:false},
+      {label:"下限价（等于下限）", price:r.lower, expect:true},
+      {label:"下限 − 0.01", price:r.lower - 1, expect:false},
+      {label:"区间内（中值）", price:mid, expect:true}
+    ];
+    let passed = 0;
+    const rows = cases.map(c => {
+      const v = evaluateBlockPrice(c.price, r);
+      const ok = v.ok === c.expect;
+      if (ok) passed++;
+      return `<tr><td class="lbl">${c.label}</td><td>${fmtPx(c.price)}</td><td><span class="pill ${c.expect ? "accept" : "reject"}">${c.expect ? "通过" : "拒绝"}</span></td><td><span class="pill ${v.ok ? "accept" : "reject"}">${v.ok ? "通过" : "拒绝"}</span></td><td><span class="pill ${ok ? "pass" : "fail"}">${ok ? "PASS" : "FAIL"}</span></td></tr>`;
+    });
+    const score = $("testScore");
+    score.textContent = passed + "/5";
+    score.className = "test-score" + (passed === 5 ? "" : " bad");
+    $("testSummary").innerHTML = `<b>${passed === 5 ? "全部通过。" : "存在失败用例。"}</b><br>基准：均价 ¥${fmtAvg(r.avgExact)}；区间 [¥${fmtPx(r.lower)}, ¥${fmtPx(r.upper)}]。边界含本数，越界 0.01 元拒绝。`;
+    $("testBody").innerHTML = rows.join("");
+    toast(passed === 5 ? "边界校验 5/5 通过：上下限恰过，越界 0.01 元拒绝。" : `边界校验 ${passed}/5，请检查规则参数。`, passed === 5 ? "good" : "bad");
+  }
+
+  function switchTab(name) {
+    const isLimit = name === "limit";
+    $("tabLimit").classList.toggle("active", isLimit);
+    $("tabBlock").classList.toggle("active", !isLimit);
+    $("panelLimit").hidden = !isLimit;
+    $("panelBlock").hidden = isLimit;
+  }
+
+  function setLimitSide(side) {
+    state.limitSide = side;
+    $("limitBuy").classList.toggle("active", side === "buy");
+    $("limitSell").classList.toggle("active", side === "sell");
+  }
+
+  function setBlockSide(side) {
+    state.blockSide = side;
+    $("blockBuy").classList.toggle("active", side === "buy");
+    $("blockSell").classList.toggle("active", side === "sell");
+  }
+
+  function resetAccount() {
+    state = initial();
+    renderAll();
+    $("testScore").textContent = "—";
+    $("testScore").className = "test-score";
+    $("testSummary").innerHTML = "<b>等待校验。</b><br>点击右上按钮，真实运行 5 个边界用例：上/下限恰好通过，越界 0.01 元拒绝。";
+    $("testBody").innerHTML = '<tr><td class="lbl" colspan="5" style="text-align:center;color:#5c6b80;padding:18px 4px">尚未运行边界校验</td></tr>';
+    toast("虚拟账户已重置为初始状态。", "good");
+  }
+
+  function updateClock() {
+    const d = new Date();
+    $("demoClock").textContent = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
+
+  // events
+  $("tabLimit").addEventListener("click", () => switchTab("limit"));
+  $("tabBlock").addEventListener("click", () => switchTab("block"));
+  $("limitBuy").addEventListener("click", () => setLimitSide("buy"));
+  $("limitSell").addEventListener("click", () => setLimitSide("sell"));
+  $("blockBuy").addEventListener("click", () => setBlockSide("buy"));
+  $("blockSell").addEventListener("click", () => setBlockSide("sell"));
+  $("limitSubmit").addEventListener("click", submitLimit);
+  $("blockSubmit").addEventListener("click", submitBlock);
+  $("runTests").addEventListener("click", runBoundaryTests);
+  $("resetAccount").addEventListener("click", resetAccount);
+  $("limitPrice").addEventListener("input", updateLimitAmount);
+  $("limitQty").addEventListener("input", updateLimitAmount);
+  $("ordersBody").addEventListener("click", ev => {
+    const btn = ev.target.closest("[data-cancel]");
+    if (!btn) return;
+    cancelOrder(btn.dataset.cancel);
+  });
+
+  document.querySelectorAll("[data-limit-price]").forEach(btn => {
+    btn.addEventListener("click", () => { $("limitPrice").value = btn.dataset.limitPrice; updateLimitAmount(); });
+  });
+  document.querySelectorAll("[data-limit-qty]").forEach(btn => {
+    btn.addEventListener("click", () => { $("limitQty").value = btn.dataset.limitQty; updateLimitAmount(); });
+  });
+  document.querySelectorAll("[data-block-price]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const r = rule();
+      const kind = btn.dataset.blockPrice;
+      const val = kind === "lower" ? r.lower : kind === "upper" ? r.upper : Math.round(r.avgExact);
+      $("blockPrice").value = fmtPx(val);
+      $("blockPrice").focus();
+    });
+  });
+  document.querySelectorAll("[data-block-offset]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const r = rule();
+      const dir = Number(btn.dataset.blockOffset);
+      $("blockPrice").value = fmtPx(dir > 0 ? r.upper + 1 : r.lower - 1);
+      $("blockPrice").focus();
+    });
+  });
+  document.querySelectorAll("[data-inactive]").forEach(btn => {
+    btn.addEventListener("click", () => toast("本演示仅加载 920999 N星澜 的完整盘口与规则校验。", ""));
+  });
+
+  renderAll();
+  updateClock();
+  setInterval(updateClock, 1000);
+
+})();
+</script>
+</body>
+</html>
