@@ -1,0 +1,17 @@
+name: BSE demo checks
+on:
+  push:
+    branches: [main, feat/seg3-display-fixes]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  static-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/seg3-display.test.mjs
