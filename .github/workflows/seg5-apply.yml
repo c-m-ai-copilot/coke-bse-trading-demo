@@ -1,0 +1,24 @@
+name: seg5 apply
+on:
+  push:
+    branches: [fix/seg5-build-marker-scope]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node .github/seg5/a.mjs && node .github/seg5/b.mjs
+      - name: Commit patch, pin build marker, drop temp files
+        run: |
+          git config user.name "bse-ci-bot"
+          git config user.email "bse-ci-bot@users.noreply.github.com"
+          git add index.html
+          git commit -m "fix: scope 3.6.5 band to block orders and add build marker"
+          SHA=$(git rev-parse --short=7 HEAD)
+          sed -i "s|commit: \"pending\"|commit: \"$SHA\"|; s|>pending<|>$SHA<|" index.html
+          git rm -r --quiet .github/seg5 .github/workflows/seg5-apply.yml
+          git add -A
+          git commit -m "chore: pin build marker to $SHA"
+          git push
