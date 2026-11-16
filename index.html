@@ -303,7 +303,9 @@ body:not(:has(#tabBlock.active)) .right-col section:has(.rule-hero){display:none
   <div class="top-spacer"></div>
   <div class="env-tag">环境 <b>纯前端演示</b></div>
   <div class="env-tag">行情 <b>合成</b></div>
-  <div class="env-tag">版本 <b>build-20261116-seg3</b></div>  <div class="env-tag">网络 <b>0 请求</b></div>
+  <div class="env-tag">版本 <b id="buildId">build-20261116-seg5</b></div>
+  <div class="env-tag">提交 <b id="buildCommit" class="mono">15986d6</b></div>
+  <div class="env-tag">网络 <b>0 请求</b></div>
   <div class="clock mono" id="demoClock">2026-11-12 11:30:00</div>
 </header>
 
@@ -560,8 +562,8 @@ body:not(:has(#tabBlock.active)) .right-col section:has(.rule-hero){display:none
       </div>
     </section>
 
-    <section class="panel">
-      <div class="panel-hd"><h2>大宗申报价格区间</h2><span class="hint">仅大宗交易适用</span></div>
+    <section class="panel" id="rulePanel">
+      <div class="panel-hd"><h2>大宗申报价格区间</h2><span class="hint">仅大宗委托适用</span></div>
       <div class="panel-bd" style="padding:10px 12px 12px">
         <div class="rule-hero">
           <h3>无涨跌幅限制 · 大宗申报</h3>
@@ -579,7 +581,7 @@ body:not(:has(#tabBlock.active)) .right-col section:has(.rule-hero){display:none
           <div class="band-cell"><span>申报价格上限</span><b class="up" id="ruleUpper">¥13.00</b><div class="raw" id="ruleUpperRaw">min(10.00×130%, 15.20)</div></div>
           <div class="band-cell"><span>申报价格下限</span><b class="down" id="ruleLower">¥7.00</b><div class="raw" id="ruleLowerRaw">max(10.00×70%, 6.80)</div></div>
         </div>
-        <div class="rule-note"><b>边界含本数。</b>价格等于上限或下限可通过；高于上限 0.01 元、或低于下限 0.01 元，拒绝。计算基于当日已成交金额、已成交股数、已成交最高价与最低价。</div>
+        <div class="rule-note"><b>边界含本数。</b>价格等于上限或下限可通过；高于上限 0.01 元、或低于下限 0.01 元，拒绝。计算基于当日已成交金额、已成交股数、已成交最高价与最低价。<br><b>适用范围：</b>本区间仅适用于<u>无价格涨跌幅限制股票的大宗交易申报</u>；限价委托不显示该区间，也不做该校验。</div>
       </div>
     </section>
   </aside>
@@ -632,6 +634,23 @@ body:not(:has(#tabBlock.active)) .right-col section:has(.rule-hero){display:none
     return Number.isFinite(n) ? Math.round(n * 100) : NaN;
   };
   const pad = n => String(n).padStart(2, "0");
+
+  // 构建标识：BUILD.id 标识页面内容版本；BUILD.commit 为包含该版本内容的提交短 SHA。
+  const BUILD = {id: "build-20261116-seg5", commit: "15986d6"};
+
+  function buildLabel(build) {
+    const src = build || BUILD;
+    const commit = String(src.commit);
+    const short = /^[0-9a-f]{7,40}$/i.test(commit) ? commit.slice(0, 7) : "pending";
+    return {id: String(src.id), commit: short};
+  }
+
+  function renderBuild() {
+    const b = buildLabel();
+    $("buildId").textContent = b.id;
+    $("buildCommit").textContent = b.commit;
+    $("buildCommit").title = String(BUILD.commit);
+  }
   const nowTime = () => {
     const d = new Date();
     return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
@@ -922,6 +941,8 @@ body:not(:has(#tabBlock.active)) .right-col section:has(.rule-hero){display:none
     $("tabBlock").classList.toggle("active", !isLimit);
     $("panelLimit").hidden = !isLimit;
     $("panelBlock").hidden = isLimit;
+    // 3.6.5(2)(3) 价格区间只在大宗委托界面展示：限价委托页签下隐藏该说明卡片。
+    $("rulePanel").hidden = isLimit;
   }
 
   function setLimitSide(side) {
@@ -997,6 +1018,7 @@ body:not(:has(#tabBlock.active)) .right-col section:has(.rule-hero){display:none
     btn.addEventListener("click", () => toast("本演示仅加载 920999 N星澜 的完整盘口与规则校验。", ""));
   });
 
+  renderBuild();
   renderAll();
   updateClock();
   setInterval(updateClock, 1000);

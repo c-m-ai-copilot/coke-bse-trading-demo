@@ -22,5 +22,6 @@ test("limit-order form does not include bulk interval ratios", () => {
 });
 
 test("a visible build identifier is present", () => {
-  assert.match(html, /class="env-tag">版本 <b>build-20261116-seg3<\/b>/);
+  assert.match(html, /<b id="buildId">build-20261116-seg5<\/b>/);
+  assert.match(html, /<b id="buildCommit" class="mono">(pending|[0-9a-f]{7})<\/b>/);
 });
