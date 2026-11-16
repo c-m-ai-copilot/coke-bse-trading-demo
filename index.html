@@ -304,7 +304,7 @@ body:not(:has(#tabBlock.active)) .right-col section:has(.rule-hero){display:none
   <div class="env-tag">环境 <b>纯前端演示</b></div>
   <div class="env-tag">行情 <b>合成</b></div>
   <div class="env-tag">版本 <b id="buildId">build-20261116-seg5</b></div>
-  <div class="env-tag">提交 <b id="buildCommit" class="mono">pending</b></div>
+  <div class="env-tag">提交 <b id="buildCommit" class="mono">15986d6</b></div>
   <div class="env-tag">网络 <b>0 请求</b></div>
   <div class="clock mono" id="demoClock">2026-11-12 11:30:00</div>
 </header>
@@ -636,7 +636,7 @@ body:not(:has(#tabBlock.active)) .right-col section:has(.rule-hero){display:none
   const pad = n => String(n).padStart(2, "0");
 
   // 构建标识：BUILD.id 标识页面内容版本；BUILD.commit 为包含该版本内容的提交短 SHA。
-  const BUILD = {id: "build-20261116-seg5", commit: "pending"};
+  const BUILD = {id: "build-20261116-seg5", commit: "15986d6"};
 
   function buildLabel(build) {
     const src = build || BUILD;
