@@ -502,7 +502,7 @@ body:not(:has(#tabBlock.active)) .right-col section:has(.rule-hero){display:none
 
     <!-- test + orders -->
     <div class="lower-grid">
-      <section class="panel">
+      <section class="panel" id="boundaryPanel" hidden>
         <div class="panel-hd">
           <h2>3.6.5(2)(3) 边界校验台</h2>
           <button class="test-run" id="runTests" type="button">运行边界校验</button>
@@ -941,8 +941,9 @@ body:not(:has(#tabBlock.active)) .right-col section:has(.rule-hero){display:none
     $("tabBlock").classList.toggle("active", !isLimit);
     $("panelLimit").hidden = !isLimit;
     $("panelBlock").hidden = isLimit;
-    // 3.6.5(2)(3) 价格区间只在大宗委托界面展示：限价委托页签下隐藏该说明卡片。
+    // 3.6.5(2)(3) 仅适用于大宗委托：切到限价委托时隐藏规则说明和边界校验台。
     $("rulePanel").hidden = isLimit;
+    $("boundaryPanel").hidden = isLimit;
   }
 
   function setLimitSide(side) {
