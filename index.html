@@ -289,7 +289,7 @@
     .q-price{margin-left:0}
     .source-strip{grid-template-columns:1fr}
   }
-</style>
+body:not(:has(#tabBlock.active)) .right-col section:has(.rule-hero){display:none}</style>
 </head>
 <body>
 
@@ -303,7 +303,7 @@
   <div class="top-spacer"></div>
   <div class="env-tag">环境 <b>纯前端演示</b></div>
   <div class="env-tag">行情 <b>合成</b></div>
-  <div class="env-tag">网络 <b>0 请求</b></div>
+  <div class="env-tag">版本 <b>build-20261116-seg3</b></div>  <div class="env-tag">网络 <b>0 请求</b></div>
   <div class="clock mono" id="demoClock">2026-11-12 11:30:00</div>
 </header>
 
@@ -312,10 +312,10 @@
   <div class="ticker-track">
     <span>本页面所有价格、盘口、成交、资金与持仓均为<b>合成演示数据</b></span>
     <span>不连接交易所、券商、行情源或任何网络接口</span>
-    <span>3.6.5(2)(3) 大宗价格区间校验：<b>边界含本数，越界 0.01 元拒绝</b></span>
+    <span>全部行情与委托仅为合成演示，不连接外部系统</span>
     <span>本页面所有价格、盘口、成交、资金与持仓均为<b>合成演示数据</b></span>
     <span>不连接交易所、券商、行情源或任何网络接口</span>
-    <span>3.6.5(2)(3) 大宗价格区间校验：<b>边界含本数，越界 0.01 元拒绝</b></span>
+    <span>全部行情与委托仅为合成演示，不连接外部系统</span>
   </div>
 </div>
 
@@ -561,11 +561,11 @@
     </section>
 
     <section class="panel">
-      <div class="panel-hd"><h2>价格区间</h2><span class="hint">按官方口径</span></div>
+      <div class="panel-hd"><h2>大宗申报价格区间</h2><span class="hint">仅大宗交易适用</span></div>
       <div class="panel-bd" style="padding:10px 12px 12px">
         <div class="rule-hero">
           <h3>无涨跌幅限制 · 大宗申报</h3>
-          <span class="eff">2026-10-26 起</span>
+          <span class="eff">生效日待官方公告确认（unknown）</span>
         </div>
         <div class="rule-eq">
           <span class="k">均价</span> = 已成交金额 ÷ 已成交股数<br>
@@ -605,7 +605,7 @@
       <div class="source-card">
         <div class="no">北证公告〔2026〕43号 · 2026-10-16</div>
         <h4>关于实施《北京证券交易所交易规则》相关条款的公告</h4>
-        <p>第 3.6.5 条第二款、第三款（无价格涨跌幅限制股票的大宗交易申报价格范围）自 2026-10-26 起实施。</p>
+        <p>第 3.6.5 条第二款、第三款（无价格涨跌幅限制股票的大宗交易申报价格范围）：生效日待官方公告确认（unknown）。</p>
         <p style="margin-top:5px"><a href="https://www.bse.cn/jygl_list/200029608.html" target="_blank" rel="noreferrer">北证公告〔2026〕43号原文</a></p>
       </div>
     </div>
