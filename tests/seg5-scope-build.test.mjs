@@ -9,7 +9,27 @@ test("band ratios only in block card", () => {
   assert.doesNotMatch(limit, /70%|130%|价格区间|ruleUpper|ruleLower/);
   assert.match(html, /id="rulePanel"[\s\S]*?仅大宗委托适用/);
   assert.match(html, /本区间仅适用于<u>无价格涨跌幅限制股票的大宗交易申报<\/u>/);
-  assert.match(one(/function switchTab[\s\S]*?\n  \}/), /\$\("rulePanel"\)\.hidden = isLimit;/);
+  assert.match(html, /<section class="panel" id="boundaryPanel" hidden>/);
+  const switchSource = one(/function switchTab[\s\S]*?\n  \}/);
+  assert.match(switchSource, /\$\("rulePanel"\)\.hidden = isLimit;/);
+  assert.match(switchSource, /\$\("boundaryPanel"\)\.hidden = isLimit;/);
+});
+test("rule and boundary panels follow the active order tab", () => {
+  const elements = Object.fromEntries(["tabLimit", "tabBlock", "panelLimit", "panelBlock", "rulePanel", "boundaryPanel"].map((id) => [id, {
+    hidden: id === "panelBlock" || id === "rulePanel" || id === "boundaryPanel",
+    classList: {toggle() {}}
+  }]));
+  const switchTab = new Function("$", `${one(/function switchTab[\s\S]*?\n  \}/)}; return switchTab;`)((id) => elements[id]);
+  switchTab("limit");
+  assert.equal(elements.panelLimit.hidden, false);
+  assert.equal(elements.panelBlock.hidden, true);
+  assert.equal(elements.rulePanel.hidden, true);
+  assert.equal(elements.boundaryPanel.hidden, true);
+  switchTab("block");
+  assert.equal(elements.panelLimit.hidden, true);
+  assert.equal(elements.panelBlock.hidden, false);
+  assert.equal(elements.rulePanel.hidden, false);
+  assert.equal(elements.boundaryPanel.hidden, false);
 });
 test("only block path validates band", () => {
   assert.doesNotMatch(one(/function submitLimit[\s\S]*?\n  \}/), /evaluateBlockPrice|rule\(\)/);
