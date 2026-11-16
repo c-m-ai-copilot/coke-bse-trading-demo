@@ -5,9 +5,10 @@ import test from "node:test";
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const limitPanel = html.match(/<div id="panelLimit">([\s\S]*?)<div id="panelBlock"/)?.[1];
 
-test("effective date is explicitly unconfirmed", () => {
-  assert.match(html, /生效日待官方公告确认（unknown）/);
-  assert.doesNotMatch(html, /2026-10-26/);
+test("effective date cites 2026-10-26 and BSE announcement 43", () => {
+  assert.match(html, /自2026-10-26起实施/);
+  assert.doesNotMatch(html, /unknown/);
+  assert.match(html, /https:\/\/www\.bse\.cn\/jygl_list\/200029608\.html/);
 });
 
 test("3.6.5 interval card is scoped to block trade", () => {
